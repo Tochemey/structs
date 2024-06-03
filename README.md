@@ -5,7 +5,7 @@
 
 
 ## Overview
-Structs is a forked copy of the original [structs]((https://github.com/fatih/structs)) library written by [Fatih Arslan](https://github.com/fatih).
+Structs is a forked copy of the original [structs](https://github.com/fatih/structs) library written by [Fatih Arslan](https://github.com/fatih).
 Structs contains various utilities to work with Go (Golang) structs. 
 
 ## Addition to the original library
