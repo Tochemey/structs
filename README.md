@@ -1,5 +1,9 @@
 # Structs
 
+[![build](https://img.shields.io/github/actions/workflow/status/Tochemey/structs/build.yml?branch=main)](https://github.com/Tochemey/structs/actions/workflows/build.yml)
+[![GitHub go.mod Go version](https://badges.chse.dev/github/go-mod/go-version/Tochemey/structs)](https://go.dev/doc/install)
+
+
 ## Overview
 Structs is a forked copy of the original structs library written by [Fatih Arslan](https://github.com/fatih/structs)
 Structs contains various utilities to work with Go (Golang) structs. 
