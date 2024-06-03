@@ -1,3 +1,28 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2014 Fatih Arslan
+ * Copyright (c) 2024 Arsene Tochemey
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package structs
 
 import (
@@ -27,7 +52,7 @@ func (f *Field) Tag(key string) string {
 
 // Value returns the underlying value of the field. It panics if the field
 // is not exported.
-func (f *Field) Value() interface{} {
+func (f *Field) Value() any {
 	return f.value.Interface()
 }
 
@@ -63,7 +88,7 @@ func (f *Field) Kind() reflect.Kind {
 // Set sets the field to given value v. It returns an error if the field is not
 // settable (not addressable or not exported) or if the given value's type
 // doesn't match the fields type.
-func (f *Field) Set(val interface{}) error {
+func (f *Field) Set(val any) error {
 	// we can't set unexported fields, so be sure this field is exported
 	if !f.IsExported() {
 		return errNotExported
@@ -95,8 +120,8 @@ func (f *Field) Zero() error {
 // of a nested struct . A struct tag with the content of "-" ignores the
 // checking of that particular field. Example:
 //
-//   // Field is ignored by this package.
-//   Field *http.Request `structs:"-"`
+//	// Field is ignored by this package.
+//	Field *http.Request `structs:"-"`
 //
 // It panics if field is not exported or if field's kind is not struct
 func (f *Field) Fields() []*Field {
@@ -119,14 +144,14 @@ func (f *Field) Field(name string) *Field {
 func (f *Field) FieldOk(name string) (*Field, bool) {
 	value := &f.value
 	// value must be settable so we need to make sure it holds the address of the
-	// variable and not a copy, so we can pass the pointer to strctVal instead of a
+	// variable and not a copy, so we can pass the pointer to structVal instead of a
 	// copy (which is not assigned to any variable, hence not settable).
 	// see "https://blog.golang.org/laws-of-reflection#TOC_8."
 	if f.value.Kind() != reflect.Ptr {
 		a := f.value.Addr()
 		value = &a
 	}
-	v := strctVal(value.Interface())
+	v := structVal(value.Interface())
 	t := v.Type()
 
 	field, ok := t.FieldByName(name)
@@ -138,4 +163,31 @@ func (f *Field) FieldOk(name string) (*Field, bool) {
 		field: field,
 		value: v.FieldByName(name),
 	}, true
+}
+
+func getFields(v reflect.Value, tagName string) []*Field {
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
+	t := v.Type()
+
+	var fields []*Field
+
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+
+		if tag := field.Tag.Get(tagName); tag == "-" {
+			continue
+		}
+
+		f := &Field{
+			field: field,
+			value: v.FieldByName(field.Name),
+		}
+
+		fields = append(fields, f)
+	}
+
+	return fields
 }

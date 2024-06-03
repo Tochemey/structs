@@ -1,3 +1,28 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2014 Fatih Arslan
+ * Copyright (c) 2024 Arsene Tochemey
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package structs
 
 import (
@@ -335,6 +360,7 @@ func TestMap_NestedMapWithStringValues(t *testing.T) {
 		t.Errorf("Map nested struct's name field should give example, got: %s", name)
 	}
 }
+
 func TestMap_NestedMapWithInterfaceValues(t *testing.T) {
 	type B struct {
 		Foo map[string]interface{}
@@ -558,7 +584,7 @@ func TestMap_Anonymous(t *testing.T) {
 	}
 }
 
-func TestMap_Flatnested(t *testing.T) {
+func TestMap_FlatNested(t *testing.T) {
 	type A struct {
 		Name string
 	}
@@ -585,7 +611,7 @@ func TestMap_Flatnested(t *testing.T) {
 
 }
 
-func TestMap_FlatnestedOverwrite(t *testing.T) {
+func TestMap_FlatNestedOverwrite(t *testing.T) {
 	type A struct {
 		Name string
 	}
@@ -683,6 +709,7 @@ func TestFillMap_Nil(t *testing.T) {
 	// nil should no
 	FillMap(T, nil)
 }
+
 func TestStruct(t *testing.T) {
 	var T = struct{}{}
 
@@ -1306,15 +1333,6 @@ func TestSetValueOnNestedField(t *testing.T) {
 	}
 }
 
-type Person struct {
-	Name string
-	Age  int
-}
-
-func (p *Person) String() string {
-	return fmt.Sprintf("%s(%d)", p.Name, p.Age)
-}
-
 func TestTagWithStringOption(t *testing.T) {
 
 	type Address struct {
@@ -1353,15 +1371,6 @@ func TestTagWithStringOption(t *testing.T) {
 	if vs[1] != person.String() {
 		t.Errorf("Value for 2nd field (person) should be %T, got: %T", person.String(), vs[1])
 	}
-}
-
-type Animal struct {
-	Name string
-	Age  int
-}
-
-type Dog struct {
-	Animal *Animal `json:"animal,string"`
 }
 
 func TestNonStringerTagWithStringOption(t *testing.T) {
@@ -1450,4 +1459,110 @@ func TestMap_InterfaceTypeWithMapValue(t *testing.T) {
 	}()
 
 	_ = Map(a)
+}
+
+func TestOriginal_AsValue(t *testing.T) {
+	type A struct {
+		Name    string      `structs:"name"`
+		IP      string      `structs:"ip"`
+		Query   string      `structs:"query"`
+		Payload interface{} `structs:"payload"`
+	}
+
+	a := A{
+		Name:    "test",
+		IP:      "127.0.0.1",
+		Query:   "",
+		Payload: map[string]string{"test_param": "test_param"},
+	}
+
+	s := New(a)
+	original := s.Original()
+	if !reflect.DeepEqual(a, original) {
+		t.Error("original value does not match")
+	}
+}
+
+func TestOriginal_AsInstance(t *testing.T) {
+	type A struct {
+		Name    string      `structs:"name"`
+		IP      string      `structs:"ip"`
+		Query   string      `structs:"query"`
+		Payload interface{} `structs:"payload"`
+	}
+
+	a := A{
+		Name:    "test",
+		IP:      "127.0.0.1",
+		Query:   "",
+		Payload: map[string]string{"test_param": "test_param"},
+	}
+
+	s := New(&a)
+	original := s.Original()
+	_, ok := original.(*A)
+	if !ok {
+		t.Error("invalid original")
+	}
+}
+
+func TestFillStructNilMap(t *testing.T) {
+	defer func() {
+		err := recover()
+		if err != nil {
+			t.Error("passing a nil map should panic")
+		}
+	}()
+
+	animal := &Animal{
+		Name: "cougar",
+		Age:  12,
+	}
+
+	FillStruct(nil, animal)
+}
+
+func TestFillStruct(t *testing.T) {
+	animal := &Animal{
+		Name: "cougar",
+		Age:  12,
+	}
+
+	m := map[string]any{
+		"Age": 23,
+	}
+
+	expected := &Animal{
+		Name: "cougar",
+		Age:  23,
+	}
+	FillStruct(m, animal)
+	if !reflect.DeepEqual(expected, animal) {
+		t.Error("failed to fill struct")
+	}
+}
+
+func TestFillNestedStruct(t *testing.T) {
+	type A struct {
+		Name string
+	}
+	type B struct {
+		A A
+		C int
+	}
+
+	a := A{Name: "example"}
+	b := &B{A: a, C: 123}
+
+	m := map[string]any{
+		"C":    23,
+		"Name": "test",
+	}
+
+	expected := &B{A: A{Name: "test"}, C: 23}
+
+	FillStruct(m, b)
+	if !reflect.DeepEqual(expected, b) {
+		t.Error("failed to fill struct")
+	}
 }

@@ -1,3 +1,28 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2014 Fatih Arslan
+ * Copyright (c) 2024 Arsene Tochemey
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package structs
 
 import (
@@ -82,7 +107,7 @@ func ExampleMap_tags() {
 }
 
 func ExampleMap_omitNested() {
-	// By default field with struct types are processed too. We can stop
+	// By default, field with struct types are processed too. We can stop
 	// processing them via "omitnested" tag option.
 	type Server struct {
 		Name string    `structs:"server_name"`
@@ -90,7 +115,6 @@ func ExampleMap_omitNested() {
 		Time time.Time `structs:"time,omitnested"` // do not convert to map[string]interface{}
 	}
 
-	const shortForm = "2006-Jan-02"
 	t, _ := time.Parse("2006-Jan-02", "2013-Feb-03")
 
 	s := &Server{
@@ -112,7 +136,7 @@ func ExampleMap_omitNested() {
 }
 
 func ExampleMap_omitEmpty() {
-	// By default field with struct types of zero values are processed too. We
+	// By default, field with struct types of zero values are processed too. We
 	// can stop processing them via "omitempty" tag option.
 	type Server struct {
 		Name     string `structs:",omitempty"`
@@ -154,7 +178,7 @@ func ExampleValues() {
 }
 
 func ExampleValues_omitEmpty() {
-	// By default field with struct types of zero values are processed too. We
+	// By default, field with struct types of zero values are processed too. We
 	// can stop processing them via "omitempty" tag option.
 	type Server struct {
 		Name     string `structs:",omitempty"`
@@ -348,4 +372,30 @@ func ExampleHasZero() {
 	// Output:
 	// true
 	// false
+}
+
+func ExampleFillStruct() {
+	type Server struct {
+		Name    string
+		ID      int32
+		Enabled bool
+	}
+
+	s := &Server{
+		Name:    "Fatih",
+		ID:      135790,
+		Enabled: false,
+	}
+
+	m := map[string]any{
+		"ID":   233,
+		"Name": "Arsene",
+	}
+
+	FillStruct(m, s)
+
+	v := Values(s)
+	fmt.Printf("Values: %+v\n", v)
+	// Output:
+	// Values: [Arsene 233 false]
 }

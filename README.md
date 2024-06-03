@@ -1,22 +1,17 @@
-# Archived project. No maintenance. 
+# Structs
 
-This project is not maintained anymore and is archived. Feel free to fork and
-make your own changes if needed. For more detail read my blog post: [Taking an indefinite sabbatical from my projects](https://arslan.io/2018/10/09/taking-an-indefinite-sabbatical-from-my-projects/)
+## Overview
+Structs is a forked copy of the original structs library written by [Fatih Arslan](https://github.com/fatih/structs)
+Structs contains various utilities to work with Go (Golang) structs. 
 
-Thanks to everyone for their valuable feedback and contributions.
+## Addition to the original library
 
-# Structs [![GoDoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](http://godoc.org/github.com/fatih/structs) [![Build Status](http://img.shields.io/travis/fatih/structs.svg?style=flat-square)](https://travis-ci.org/fatih/structs) [![Coverage Status](http://img.shields.io/coveralls/fatih/structs.svg?style=flat-square)](https://coveralls.io/r/fatih/structs)
-
-Structs contains various utilities to work with Go (Golang) structs. It was
-initially used by me to convert a struct into a `map[string]interface{}`. With
-time I've added other utilities for structs.  It's basically a high level
-package based on primitives from the reflect package. Feel free to add new
-functions or improve the existing code.
+- `FillStruct`: this method helps fill a given struct from a map.
 
 ## Install
 
 ```bash
-go get github.com/fatih/structs
+go get github.com/tochemey/structs
 ```
 
 ## Usage and Examples
@@ -69,6 +64,10 @@ z := structs.IsZero(server)
 
 // Check if server is a struct or a pointer to struct
 i := structs.IsStruct(server)
+
+// Sets the fields of a given struct from a map
+m := map[string]any{"Name":"gopher", "ID":123456, "Enabled":false}
+structs.FillStruct(m, server)
 ```
 
 ### Struct methods
@@ -162,8 +161,10 @@ for _, f := range s.Fields() {
 
 ## Credits
 
+ * [Arsene Gandote](https://github.com/Tochemey)
  * [Fatih Arslan](https://github.com/fatih)
  * [Cihangir Savas](https://github.com/cihangir)
+ * [Stephan Peijnik-Steinwender ](https://github.com/speijnik): Borrowed some of his work [here](https://github.com/anexia-it/go-structmapper)
 
 ## License
 
