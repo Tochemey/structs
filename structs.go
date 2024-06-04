@@ -601,6 +601,7 @@ func Name(s any) string {
 	return New(s).Name()
 }
 
+// fromMap sets the given output from the value of a pointer
 func fromPtr(in any, t reflect.Type, out reflect.Value) error {
 	child := reflect.New(t.Elem())
 	if err := fromValue(in, child.Elem(), child.Elem().Type()); err != nil {
@@ -610,6 +611,7 @@ func fromPtr(in any, t reflect.Type, out reflect.Value) error {
 	return nil
 }
 
+// fromMap sets the given output from a given the elements of a slice
 func fromSlice(in any, out reflect.Value, t reflect.Type) (err error) {
 	input := reflect.ValueOf(in)
 	if input.Kind() != reflect.Slice {
@@ -635,6 +637,7 @@ func fromSlice(in any, out reflect.Value, t reflect.Type) (err error) {
 	return
 }
 
+// fromMap sets the given output from a given the elements of a map
 func fromMap(in any, out reflect.Value, t reflect.Type) (err error) {
 	input := reflect.ValueOf(in)
 	if input.Kind() != reflect.Map {
@@ -669,6 +672,7 @@ func fromMap(in any, out reflect.Value, t reflect.Type) (err error) {
 	return
 }
 
+// fromArray sets the given output from a given array or slice elements
 func fromArray(in any, out reflect.Value, t reflect.Type) (err error) {
 	input := reflect.ValueOf(in)
 	if input.Kind() != reflect.Array && input.Kind() != reflect.Slice {
@@ -692,6 +696,7 @@ func fromArray(in any, out reflect.Value, t reflect.Type) (err error) {
 	return
 }
 
+// fromValue set the value of a given input from a given reflected value
 func fromValue(in any, out reflect.Value, t reflect.Type) error {
 	switch out.Kind() {
 	case reflect.Ptr:

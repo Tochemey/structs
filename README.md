@@ -11,6 +11,7 @@ Structs contains various utilities to work with Go (Golang) structs.
 ## Addition to the original library
 
 - `FillStruct`: this method helps fill a given struct from a map.
+- `Orginal`: returns the underlying struct
 
 ## Install
 
@@ -93,6 +94,7 @@ f, ok := s.FieldOk(name)  // Get a *Field based on the given field name
 n := s.Name()             // Get the struct name
 h := s.HasZero()          // Check if any field is uninitialized
 z := s.IsZero()           // Check if all fields are uninitialized
+o := s.Orginal()          // Get the underlying go struct
 ```
 
 ### Field methods
